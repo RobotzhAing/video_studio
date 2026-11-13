@@ -598,7 +598,7 @@ def _ffmpeg_filter_escape(value):
 
 def resolve_text_fontfile(prefer_general=False):
     """Choose an installed Unicode font so subtitle glyphs survive FFmpeg export."""
-    if os.name == 'nt':
+    if sys.platform == 'win32':
         candidates = (
             Path(os.environ.get('WINDIR', r'C:\Windows')) / 'Fonts' / 'msyh.ttc',
             Path(os.environ.get('WINDIR', r'C:\Windows')) / 'Fonts' / 'simhei.ttf',
@@ -619,7 +619,7 @@ def resolve_text_fontfile(prefer_general=False):
     if prefer_general:
         if sys.platform == 'darwin':
             candidates = (Path('/System/Library/Fonts/Supplemental/Arial Unicode.ttf'),) + candidates
-        elif os.name == 'nt':
+        elif sys.platform == 'win32':
             candidates = (Path(os.environ.get('WINDIR', r'C:\Windows')) / 'Fonts' / 'arial.ttf',) + candidates
         else:
             candidates = (Path('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'),) + candidates

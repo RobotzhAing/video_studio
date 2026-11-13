@@ -113,7 +113,7 @@ class MediaMetadataTests(unittest.TestCase):
 
         args = execute.call_args.args[0]
         self.assertNotIn("-ss", args)
-        self.assertIn("/tmp/media/" + "a" * 32, args)
+        self.assertIn(str(Path("/tmp/media") / ("a" * 32)), args)
         self.assertEqual(sampled, b"jpeg")
 
     def test_ai_video_sample_keeps_time_seek(self):

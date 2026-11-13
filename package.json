@@ -1,6 +1,6 @@
 {
   "name": "videofusion-studio",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "description": "A local cross-platform video editor with an AI editing assistant",
   "main": "desktop/main.cjs",
