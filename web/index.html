@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video Studio</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">V</span><strong>Video Studio</strong></div>
+  <button class="button subtle" id="settings-button" type="button">⚙ AI 设置</button>
+</header>
+<main class="workspace">
+  <section class="media panel" aria-label="素材与 AI 混剪">
+    <nav class="tabs" aria-label="工作区">
+      <button class="tab active" data-tab="media" type="button" aria-pressed="true">素材</button>
+      <button class="tab" data-tab="ai" type="button" aria-pressed="false">AI 助手</button>
+    </nav>
+    <div class="panel-body tab-page" id="media-page">
+      <div class="section-heading"><div><h2>媒体素材</h2><p>导入素材，按任务整理后开始混剪。</p></div><span id="media-count" class="muted">0 项</span></div>
+      <button class="import-box" id="import-button" type="button"><span class="import-icon" aria-hidden="true">＋</span><strong>导入素材</strong><small>选择视频、图片或音频文件</small></button>
+      <input id="file-input" type="file" accept="video/*,image/*,audio/*" multiple hidden>
+      <section class="task-folders" aria-labelledby="task-folders-title">
+        <div class="task-folders-heading"><div><h3 id="task-folders-title">AI 混剪任务文件夹</h3><p>为每条成片选择素材、参考视频和混剪要求。</p></div><button class="button subtle compact" id="task-folder-create" type="button">＋ 新建文件夹</button></div>
+        <div id="task-folder-list" class="task-folder-list"></div>
+        <p id="task-folder-empty" class="muted">还没有任务文件夹。新建后选择素材并填写混剪要求。</p>
+        <nav class="pagination hidden" id="folders-pagination" aria-label="任务文件夹分页"></nav>
+      </section>
+      <div class="bulk-actions" aria-label="素材批量管理">
+        <label class="bulk-select-page"><input class="bulk-check" id="media-select-page" type="checkbox" aria-controls="media-list" disabled>全选本页</label>
+        <span class="muted" id="media-selection" aria-live="polite">已选 0 项</span>
+        <button class="button danger compact" id="media-delete-selected" type="button" disabled>永久删除所选素材</button>
+      </div>
+      <p class="bulk-status hidden" id="media-delete-status" role="status"></p>
+      <div class="media-grid" id="media-list"></div>
+      <p class="muted" id="media-empty">你的素材会显示在这里。</p>
+      <nav class="pagination hidden" id="media-pagination" aria-label="素材分页"></nav>
+    </div>
+    <div class="panel-body tab-page hidden" id="ai-page">
+      <div class="section-heading"><div><h2>AI 助手</h2><p>按素材任务文件夹生成配音、配乐和字幕。</p></div><button class="link-button" id="ai-settings-link" type="button">配置 AI 接口 →</button></div>
+      <button class="button primary wide" id="ai-batch-export" type="button" disabled>✦ 启动批量 AI 混剪</button>
+      <p class="batch-summary muted" id="batch-summary" role="status" aria-live="polite"></p>
+      <section class="ai-results" aria-labelledby="batch-results-title">
+        <h3 id="batch-results-title">混剪任务与成片</h3>
+        <div class="bulk-actions" aria-label="成片批量管理">
+          <label class="bulk-select-page"><input class="bulk-check" id="mix-select-page" type="checkbox" aria-controls="ai-batch-result" disabled>全选本页</label>
+          <span class="muted" id="mix-selection" aria-live="polite">已选 0 条</span>
+          <button class="button danger compact" id="mix-delete-selected" type="button" disabled>永久删除所选成片</button>
+        </div>
+        <p class="bulk-status hidden" id="mix-delete-status" role="status"></p>
+        <p id="ai-result-empty" class="muted">完成后可播放、下载，或输入修改意见生成新版本。</p>
+        <div id="ai-batch-result" class="result-list"></div>
+        <nav class="pagination hidden" id="mix-pagination" aria-label="混剪任务与成片分页"></nav>
+      </section>
+    </div>
+  </section>
+  <section class="preview panel" aria-labelledby="player-title">
+    <div class="panel-header"><h2 id="player-title">播放器</h2><span class="muted" id="preview-name">预览</span></div>
+    <div class="preview-stage">
+      <div class="preview-empty" id="preview-empty"><div class="preview-icon" aria-hidden="true">▷</div><strong>播放素材或成片</strong><span>在素材卡或已完成任务中点击播放。</span></div>
+      <video id="video-preview" controls playsinline preload="metadata" class="hidden" aria-label="视频播放器"></video>
+      <img id="image-preview" class="hidden" alt="素材预览">
+      <audio id="audio-preview" controls preload="metadata" class="hidden" aria-label="音频播放器"></audio>
+      <p id="preview-error" class="preview-error hidden" role="alert"></p>
+    </div>
+  </section>
+</main>
+<dialog id="task-folder-dialog">
+  <form method="dialog" class="dialog-head"><div><h2 id="task-folder-dialog-title">新建混剪任务文件夹</h2><p>文件夹名称用于导出文件名；重名输出自动编号。</p></div><button class="icon-button" aria-label="关闭">✕</button></form>
+  <div class="dialog-body">
+    <label>文件夹名称<input id="task-folder-name" maxlength="120" type="text" placeholder="例如：夏日旅行"></label>
+    <label>混剪要求<textarea id="task-folder-prompt" rows="5" maxlength="12000" placeholder="剪成 15 秒的旅行短片。&#10;配音语言: en-US&#10;字幕语言: fr-FR&#10;配乐风格: jazz" aria-describedby="task-folder-prompt-hint"></textarea></label>
+    <p class="hint" id="task-folder-prompt-hint">文字指定的配音语言和地区、字幕语言、配乐风格和画幅优先于参考视频。字幕默认跟随配音语言，且不使用汉字。</p>
+    <label class="task-folder-reference-field">参考视频（可选）<select id="task-folder-reference"><option value="">不使用参考视频</option></select><small class="hint">请先导入视频。AI 会参考采样画面和音频中的剪辑节奏、语音内容、语言和音乐风格；参考视频本身不会剪入成片。</small></label>
+    <fieldset class="task-folder-assets"><legend>选择视频 / 图片素材</legend><div id="task-folder-assets-list"></div></fieldset><div id="task-folder-form-error" class="task-folder-form-error" role="alert"></div>
+    <div class="dialog-actions"><button class="button subtle" id="task-folder-cancel" type="button">取消</button><button class="button primary" id="task-folder-save" type="button">保存文件夹</button></div>
+  </div>
+</dialog>
+<dialog id="settings-dialog">
+  <form method="dialog" class="dialog-head"><div><h2>AI 接口设置</h2><p>为剪辑规划、参考音频分析和配音选择模型</p></div><button class="icon-button" aria-label="关闭">✕</button></form>
+  <div class="dialog-body">
+    <label>API Base URL<input id="api-url" type="url" placeholder="https://api.example.com/v1"></label>
+    <label>剪辑规划模型<input id="api-model" type="text" placeholder="视觉模型名称"></label>
+    <label>API Key<input id="api-key" type="password" autocomplete="off" placeholder="输入服务的 API Key" aria-describedby="ai-storage-hint"></label>
+    <label>音频理解模型<input id="api-audio-model" type="text" placeholder="使用带音轨的参考视频时必填" aria-describedby="ai-audio-model-hint"></label>
+    <p class="hint" id="ai-audio-model-hint">需要识别参考配乐风格时，请用支持声音理解的模型（例如百炼工作空间的 qwen3.5-omni-plus）。语音转写模型只能识别说话内容。</p>
+    <label>配音模型<input id="api-tts-model" type="text" placeholder="默认 gpt-4o-mini-tts"></label>
+    <label>配音音色<input id="api-tts-voice" type="text" placeholder="留空自动挑选预设音色" aria-describedby="ai-tts-hint"></label>
+    <p class="hint" id="ai-tts-hint">千问配音模型使用百炼语音合成接口；可留空自动选音色，或填写该模型支持的音色。配乐在本地生成。</p>
+    <details id="ai-audio-connections">
+      <summary>音频服务单独配置（可选）</summary>
+      <p class="hint" id="ai-audio-connections-hint">留空沿用上方地址和密钥。如果地址换了域名、协议或端口，请为该服务单独填写密钥。剪辑服务没有 Omni 权限时，可以在这里配置有权限的百炼工作空间。</p>
+      <label>音频理解 Base URL<input id="api-audio-url" type="url" placeholder="留空沿用上方 API Base URL" aria-describedby="ai-audio-connections-hint"></label>
+      <label>音频理解 API Key<input id="api-audio-key" type="password" autocomplete="off" placeholder="同地址可留空" aria-describedby="ai-audio-connections-hint"></label>
+      <label>配音 Base URL<input id="api-tts-url" type="url" placeholder="留空沿用上方 API Base URL" aria-describedby="ai-audio-connections-hint"></label>
+      <label>配音 API Key<input id="api-tts-key" type="password" autocomplete="off" placeholder="同地址可留空" aria-describedby="ai-audio-connections-hint"></label>
+    </details>
+    <p class="hint">参考画面、音频采样和旁白脚本会发送至各自配置的服务。</p>
+    <p class="hint" id="ai-storage-hint"></p>
+    <p class="hint">批量混剪和修改成片需要可用的剪辑规划和配音服务。</p>
+    <p class="settings-error hidden" id="settings-error" role="alert"></p>
+    <div class="dialog-actions"><button class="button subtle" id="settings-cancel" type="button">取消</button><button class="button primary" id="settings-save" type="button">保存设置</button></div>
+  </div>
+</dialog>
+<div id="toast" role="status" aria-live="polite" class="toast hidden"></div>
+<script src="/batch-tasks.js" defer></script>
+<script src="/app.js" defer></script>
+</body>
+</html>

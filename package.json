@@ -1,0 +1,67 @@
+{
+  "name": "videofusion-studio",
+  "version": "0.1.5",
+  "private": true,
+  "description": "A local cross-platform video editor with an AI editing assistant",
+  "main": "desktop/main.cjs",
+  "allowScripts": {
+    "electron": true,
+    "ffmpeg-static": true,
+    "ffprobe-static": true
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "prepare:runtime": "node scripts/prepare-runtime.cjs",
+    "dist": "npm run prepare:runtime && electron-builder --publish never",
+    "dist:mac": "npm run prepare:runtime && electron-builder --mac --publish never",
+    "dist:win": "npm run prepare:runtime && electron-builder --win --publish never"
+  },
+  "dependencies": {
+    "ffmpeg-static": "5.2.0",
+    "ffprobe-static": "npm:@w6s/ffprobe-static@^3.1.1"
+  },
+  "devDependencies": {
+    "electron": "37.2.0",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "studio.local.videofusion",
+    "productName": "VideoFusion Studio",
+    "asar": true,
+    "files": [
+      "desktop/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "web",
+        "to": "web"
+      },
+      {
+        "from": "build/runtime",
+        "to": "runtime"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.video"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
